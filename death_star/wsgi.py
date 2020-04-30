@@ -7,7 +7,9 @@ For more information on this file, see
 https://docs.djangoproject.com/en/3.0/howto/deployment/wsgi/
 """
 
+from django.conf import settings
 import os
+import psycopg2
 
 from django.core.wsgi import get_wsgi_application
 

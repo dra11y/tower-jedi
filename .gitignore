@@ -1,0 +1,6 @@
+.DS_Store
+_postgres_data
+*.log
+*.pyc
+__pycache__
+static/

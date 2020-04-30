@@ -1,7 +1,39 @@
 from django.contrib.auth.models import User
 from django.db import models
+from collections import namedtuple
 
-# Create your models here.
+
+def toInt(s):
+    try:
+        return int(s)
+    except ValueError:
+        return None
+
+
+class Coordinates:
+    x: int
+    y: int
+    z: int
+
+    def __init__(self, x: int = None, y: int = None, z: int = None):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    @classmethod
+    def fromString(cls, coords):
+        instance = cls()
+        xyz = coords.split(",")
+        if len(xyz) > 0:
+            instance.x = toInt(xyz[0].strip())
+        if len(xyz) > 1:
+            instance.y = toInt(xyz[1].strip())
+        if len(xyz) > 2:
+            instance.z = toInt(xyz[2].strip())
+        return instance
+
+    def __str__(self):
+        return f"{self.x},{self.y},{self.z}"
 
 
 class XWing(models.Model):
@@ -25,13 +57,13 @@ class XWing(models.Model):
     def is_destroyed(self, damage):
         return self.health - damage == 0
 
-    def set_coordinates(self, x, y, z):
-        coordinates = f"{x}0{y}0{z}"
-        self._coordinates = coordinates
+    @property
+    def coordinates(self):
+        return Coordinates.fromString(self._coordinates)
 
-    def get_coordinates(self):
-        x, y, z = self._coordinates.split("0")
-        return int(x), int(y), int(z)
+    @coordinates.setter
+    def coordinates(self, value):
+        return Coordinates.fromString(value).__str__
 
 
 class DefenceTower(models.Model):

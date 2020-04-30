@@ -1,3 +1,5 @@
 from django.contrib import admin
+from exhaust_port.models import XWing, DefenceTower
 
-# Register your models here.
+admin.site.register(XWing)
+admin.site.register(DefenceTower)
