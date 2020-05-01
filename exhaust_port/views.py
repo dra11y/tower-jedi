@@ -1,6 +1,7 @@
 from rest_framework import viewsets
 from exhaust_port.models import XWing, DefenceTower
-from exhaust_port.serializers import XWingSerializer
+from exhaust_port.serializers import *
+from django.contrib.auth.models import User
 import math
 import json
 from rest_framework.response import Response
@@ -12,6 +13,24 @@ class XWingViewSet(viewsets.ModelViewSet):
     """
     queryset = XWing.objects.all()
     serializer_class = XWingSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+class DefenceTowerViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows Defence Towers to be viewed or edited.
+    """
+    queryset = DefenceTower.objects.all()
+    serializer_class = DefenceTowerSerializer
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+class PilotViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows Pilots (Users) to be viewed or edited.
+    """
+    queryset = User.objects.all()
+    serializer_class = PilotSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 

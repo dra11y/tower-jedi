@@ -1,0 +1,11 @@
+
+
+<plotly-plot
+    *ngIf="graph$ | async; let graph;"
+    [data]="graph.data"
+    [layout]="graph.layout"
+    (plotly_click)="onChartClick($event)"
+></plotly-plot>
+
+<router-outlet></router-outlet>
+<app-messages></app-messages>

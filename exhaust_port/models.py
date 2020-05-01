@@ -33,7 +33,7 @@ class Coordinates:
         return instance
 
     def __str__(self):
-        return f"{self.x},{self.y},{self.z}"
+        return f"[{self.x}, {self.y}, {self.z}]"
 
 
 class XWing(models.Model):
@@ -63,7 +63,11 @@ class XWing(models.Model):
 
     @coordinates.setter
     def coordinates(self, value):
-        return Coordinates.fromString(value).__str__
+        # return Coordinates.fromString(value).__str__
+        pass
+
+    def __str__(self):
+        return f"{self.name} piloted by {self.pilot} at [{self.coordinates}] health = {self.health}"
 
 
 class DefenceTower(models.Model):
@@ -92,3 +96,10 @@ class DefenceTower(models.Model):
     def get_coordinates(self):
         x, y, z = self._coordinates.split("0")
         return int(x), int(y), int(z)
+
+    @property
+    def coordinates(self):
+        return Coordinates.fromString(self._coordinates)
+
+    def __str__(self):
+        return f"Tower in sector {self.sector} at {self.coordinates} health = {self.health}"

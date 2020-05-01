@@ -4,3 +4,5 @@ _postgres_data
 *.pyc
 __pycache__
 static/
+*.sqlite3
+
