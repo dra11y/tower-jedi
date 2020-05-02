@@ -17,4 +17,7 @@ fi
 # in production, but should be OK during development:
 python manage.py migrate --no-input
 
+echo "Creating superuser if needed..."
+python manage.py createsuperuser --noinput
+
 python manage.py runserver 0.0.0.0:8000

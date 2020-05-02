@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+import { formatDate } from "@angular/common";
+
 import { Observable, of } from 'rxjs';
 
 import { MessageService } from './message.service';
@@ -9,9 +11,9 @@ import { MessageService } from './message.service';
   providedIn: 'root'
 })
 export class BaseService {
-  httpOptions = {
-    headers: new HttpHeaders({ 'Content-Type': 'application/json' })
-  };
+  // httpOptions = {
+  //   headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  // };
 
   constructor(
     protected http: HttpClient,
@@ -39,6 +41,7 @@ export class BaseService {
 
   /** Log a message with the MessageService */
   protected log(message: string) {
-    this.messageService.add(`${this.constructor.name}: ${message}`);
+    let now = formatDate(new Date(), 'MM/dd/yyyy HH:mm:ss', 'en-US');
+    this.messageService.add(`${now} ${this.constructor.name}: ${message}`);
   }
 }

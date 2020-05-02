@@ -9,6 +9,10 @@ RUN apt-get -y install build-essential libpq-dev postgresql-client
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY death_star .
+COPY exhaust_port .
+COPY entrypoint.sh .
+COPY manage.py .
+COPY pytest.ini .
 
 ENTRYPOINT bash entrypoint.sh

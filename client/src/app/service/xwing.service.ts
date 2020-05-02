@@ -12,7 +12,7 @@ import { XWing } from '../model/xwing';
 })
 export class XWingService extends BaseService {
 
-  private xWingsUrl = '/exhaust_port/xwings';  // URL to web api
+  private xWingsUrl = '/api/exhaust_port/xwings';  // URL to web api
 
   /** GET towers from the server */
   getXWings(): Observable<XWing[]> {

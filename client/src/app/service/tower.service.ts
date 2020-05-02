@@ -12,7 +12,19 @@ import { Tower } from '../model/tower';
 })
 export class TowerService extends BaseService {
 
-  private towersUrl = '/exhaust_port/towers';  // URL to web api
+  private towersUrl = '/api/exhaust_port/towers';  // URL to web api
+
+  /** DELETE: destroys the tower from the server */
+  destroyTower(tower: Tower | number): Observable<Tower> {
+    const id = typeof tower === 'number' ? tower : tower.id;
+    const url = `${this.towersUrl}/${id}`;
+    this.log(url);
+
+    return this.http.delete<Tower>(url).pipe(
+      tap(_ => this.log(`destroyed tower id=${id}`)),
+      catchError(this.handleError<Tower>('destroyTower'))
+    );
+  }
 
   /** GET towers from the server */
   getTowers(): Observable<Tower[]> {
@@ -23,5 +35,4 @@ export class TowerService extends BaseService {
         catchError(this.handleError<Tower[]>('getTowers', []))
       );
   }
-
 }
