@@ -1,18 +1,23 @@
-version:         '3'
+version:        '3'
 
 services:
   db:
-    hostname:    ${POSTGRES_HOST}
-    image:       postgres:12.2-alpine
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    hostname:   ${POSTGRES_HOST}
+    image:      postgres:12.2-alpine
+    env_file:
+      - ./.env
     volumes:
       - ./_postgres_data/data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
   app:
-    build:       .
-    depends_on:
-      - db
+    build:      .
+    env_file:
+      - ./.env
+    ports:
+      - "80:80"
     volumes:
       - .:/app
+      - ./nginx.conf:/etc/nginx/sites-available/default
+    depends_on:
+      - db

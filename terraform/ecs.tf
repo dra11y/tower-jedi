@@ -11,7 +11,7 @@ resource "aws_ecr_repository" "repo" {
     command = <<COMMAND
         (cd ../client && ng build)
         docker build .. -t ${aws_ecr_repository.repo.repository_url}:latest
-        aws ecr get-login-password | docker login -u AWS ${aws_ecr_repository.repo.repository_url}
+        aws ecr get-login-password | docker login -u AWS --password-stdin ${aws_ecr_repository.repo.repository_url}
         docker push ${aws_ecr_repository.repo.repository_url}:latest
 COMMAND
   }
@@ -29,7 +29,6 @@ resource "aws_ecs_task_definition" "task" {
   cpu                      = var.fargate_cpu
   memory                   = var.fargate_memory
 
-  # "image": "${aws_ecr_repository.repo.name}/latest",
   container_definitions = <<DEFINITION
     [
       {

@@ -3,12 +3,14 @@
 *.tfstate
 node_modules
 .env
+**/package-lock.json
 _postgres_data
 *.log
 *.pyc
 __pycache__
 static/
 *.sqlite3
+build/
 
 # https://github.com/github/gitignore/blob/master/Terraform.gitignore
 # Local .terraform directories

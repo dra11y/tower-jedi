@@ -1,11 +1,11 @@
-. .env
+cd /app
 
 echo "ENVIRONMENT: ${ENVIRONMENT}"
 
 service nginx start
 
 if [ "${ENVIRONMENT}" == "dev" ]; then
-    echo 'Waiting for Postgres ...'
+    echo "Waiting for Postgres ..."
     sleep 2
     until pg_isready -U ${POSTGRES_USER} -h ${POSTGRES_HOST}
     do
@@ -13,13 +13,22 @@ if [ "${ENVIRONMENT}" == "dev" ]; then
     done
 fi
 
-# python manage.py collectstatic --no-input
+python manage.py collectstatic --no-input
 
-# Should probably vet migrate in deploy process with DevOps confirmation
-# in production, but should be OK during development:
 python manage.py migrate --no-input
 
 echo "Creating superuser if needed..."
 python manage.py createsuperuser --noinput
 
-python manage.py runserver 0.0.0.0:8000
+(cd client && yarn && yarn build --prod)
+
+echo
+echo
+echo
+if [ "${ENVIRONMENT}" == "dev" ]; then
+    echo "Starting DEVELOPMENT server ..."
+    python manage.py runserver 0.0.0.0:8000
+else
+    echo "Starting PRODUCTION server..."
+    uvicorn --workers 2 death_star.asgi:application
+fi
