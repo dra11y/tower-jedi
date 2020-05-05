@@ -2,6 +2,8 @@
 
 echo "ENVIRONMENT: ${ENVIRONMENT}"
 
+service nginx start
+
 if [ "${ENVIRONMENT}" == "dev" ]; then
     echo 'Waiting for Postgres ...'
     sleep 2

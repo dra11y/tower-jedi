@@ -1,8 +1,9 @@
 .git
-.DS_Store
+**/node_modules
+**/.DS_Store
+**/.terraform
 _postgres_data
 *.log
 *.pyc
-__pycache__
-static/
+**/__pycache__
 *.sqlite3
