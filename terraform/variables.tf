@@ -1,6 +1,10 @@
 variable "app_name" {
   description = "Name of the project/application"
-  default     = "death_star"
+  default     = "tgrushka_deathstar"
+}
+
+variable "subdomain" {
+  default = "tgrushka-deathstar"
 }
 
 variable "key_name" {

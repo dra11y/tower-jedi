@@ -12,7 +12,13 @@ services:
       - "5433:5432"
   app:
     build:      .
-    command:    bash -c 'python /app/wait_for_postgres.py ${POSTGRES_HOST} ${POSTGRES_DB} ${POSTGRES_USER} ${POSTGRES_PASSWORD} && bash entrypoint.sh'
+    entrypoint: |
+        /bin/bash -c '
+            python /app/wait_for_postgres.py \
+                ${POSTGRES_HOST} \
+                ${POSTGRES_DB} \
+                ${POSTGRES_USER} \
+                ${POSTGRES_PASSWORD} && bash entrypoint.sh'
     env_file:
       - ./.env
     ports:

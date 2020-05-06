@@ -2,6 +2,7 @@ resource "aws_lb" "alb" {
   security_groups    = [aws_security_group.alb.id]
   subnets            = aws_subnet.public.*.id
   load_balancer_type = "application"
+  name               = var.subdomain
 
   tags = {
     Name = "${var.app_name}_alb"

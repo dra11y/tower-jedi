@@ -25,7 +25,8 @@ SECRET_KEY = "+9&y5t^5ax!&r=^+yh-ms07(d9u78wri(yb3*amupb*)-sjer)"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# We are behind an ALB on a private subnet ... should be OK
+ALLOWED_HOSTS = ["*"]
 
 # This doesn't work with DRF so trailing_slash must be added to the router.init:
 APPEND_SLASH = True

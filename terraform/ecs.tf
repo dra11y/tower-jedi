@@ -8,12 +8,12 @@ resource "aws_ecr_repository" "repo" {
   }
 
   provisioner "local-exec" {
-    command = <<COMMAND
+    command = <<END_OF_COMMAND
         (cd ../client && ng build)
-        docker build .. -t ${aws_ecr_repository.repo.repository_url}:latest
+        (cd .. && docker build . -t ${aws_ecr_repository.repo.repository_url}:latest)
         aws ecr get-login-password | docker login -u AWS --password-stdin ${aws_ecr_repository.repo.repository_url}
         docker push ${aws_ecr_repository.repo.repository_url}:latest
-COMMAND
+END_OF_COMMAND
   }
 }
 
@@ -28,8 +28,10 @@ resource "aws_ecs_task_definition" "task" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.fargate_cpu
   memory                   = var.fargate_memory
+  # task_role_arn =
+  execution_role_arn = aws_iam_role.ecs_role.arn
 
-  container_definitions = <<DEFINITION
+  container_definitions = <<END_OF_DEFINITION
     [
       {
         "name": "${var.app_name}",
@@ -42,36 +44,19 @@ resource "aws_ecs_task_definition" "task" {
             "containerPort": ${var.app_port},
             "hostPort": ${var.app_port}
           }
-        ]
+      ],
+      "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "${aws_cloudwatch_log_group.log_group.name}",
+            "awslogs-region": "${var.aws_region}",
+            "awslogs-stream-prefix": "${var.app_name}_logs"
+          }
+        }
       }
     ]
-DEFINITION
+END_OF_DEFINITION
 }
-
-#
-# # # Template for ECS task definition
-# # data "template_file" "ecs_task" {
-# #   template = file("task.json.tpl")
-# #   vars = {
-# #     app_name       = var.app_name
-# #     image_name     = "${aws_ecr_repository.repo.name}/latest"
-# #     aws_region     = var.aws_region
-# #     fargate_cpu    = var.fargate_cpu
-# #     fargate_memory = var.fargate_memory
-# #     app_port       = var.app_port
-# #   }
-# # }
-#
-# # resource "aws_ecs_task_definition" "task" {
-# #   family                   = "${var.app_name}_ecs_service"
-# #   execution_role_arn       = aws_iam_role.ecs_role.arn
-# #   network_mode             = "awsvpc"
-# #   container_definitions    = data.template_file.ecs_task.rendered
-# #   requires_compatibilities = ["FARGATE"]
-# #   cpu                      = var.fargate_cpu
-# #   memory                   = var.fargate_memory
-# # }
-#
 
 resource "aws_ecs_service" "service" {
   name            = "${var.app_name}_ecs_service"
@@ -96,33 +81,7 @@ resource "aws_ecs_service" "service" {
   }
 
   depends_on = [
-    aws_lb_listener.alb_listener #,
-    #aws_iam_role_policy_attachment.ecs_role_attachment
+    aws_lb_listener.alb_listener,
+    aws_iam_role_policy_attachment.ecs_role_attachment
   ]
 }
-
-#
-# #
-# # resource "aws_launch_configuration" "launch_config" {
-# #   name_prefix          = "${var.app_name}_launch_config"
-# #   image_id             = var.aws_ami[var.aws_region]
-# #   instance_type        = "t2.micro"
-# #   key_name             = var.key_name
-# #   iam_instance_profile = aws_iam_instance_profile.instance_profile.id
-# #   security_groups      = [aws_security_group.ecs.id]
-# #   lifecycle {
-# #     create_before_destroy = true
-# #   }
-# # }
-# #
-# # resource "aws_autoscaling_group" "default" {
-# #   name                      = "${var.app_name}_autoscaling_group"
-# #   vpc_zone_identifier       = [aws_subnet.private.id]
-# #   launch_configuration      = aws_launch_configuration.launch_config.id
-# #   min_size                  = 2
-# #   max_size                  = 2
-# #   desired_capacity          = 2
-# #   health_check_grace_period = 300
-# #   health_check_type         = "ELB"
-# #   force_delete              = true
-# # }

@@ -8,7 +8,7 @@ resource "aws_appautoscaling_target" "target" {
   resource_id        = local.resource_id
   scalable_dimension = local.scalable_dimension
   min_capacity       = var.app_count
-  max_capacity       = var.app_count
+  max_capacity       = var.app_count * 2
 }
 
 # Automatically scale capacity up by one

@@ -35,3 +35,5 @@ COPY nginx.conf /etc/nginx/sites-available/default
 COPY build build
 
 EXPOSE 80
+
+ENTRYPOINT bash entrypoint.sh
