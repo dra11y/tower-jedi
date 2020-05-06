@@ -1,17 +1,12 @@
 cd /app
 
+. /etc/profile.d/pythonpath.sh
+
 echo "ENVIRONMENT: ${ENVIRONMENT}"
 
-service nginx start
+echo "PYTHONPATH: ${PYTHONPATH}"
 
-if [ "${ENVIRONMENT}" == "dev" ]; then
-    echo "Waiting for Postgres ..."
-    sleep 2
-    until pg_isready -U ${POSTGRES_USER} -h ${POSTGRES_HOST}
-    do
-        sleep 1
-    done
-fi
+service nginx start
 
 python manage.py collectstatic --no-input
 
@@ -19,8 +14,6 @@ python manage.py migrate --no-input
 
 echo "Creating superuser if needed..."
 python manage.py createsuperuser --noinput
-
-(cd client && yarn && yarn build --prod)
 
 echo
 echo

@@ -1,6 +1,6 @@
 .ONESHELL:
 .SHELL := /bin/bash
-.PHONY: ALL
+.PHONY: *
 .DEFAULT_GOAL := build
 REPO_URL := `cd terraform && terraform output "repo-url"`
 
