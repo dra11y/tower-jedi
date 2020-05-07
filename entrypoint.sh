@@ -9,8 +9,10 @@ for s in $(echo ${SECRETS} | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\
     export $s
 done
 
-echo "===== ENVIRONMENT ======"
-env
+# Uncomment to debug environment:
+# WARNING: secrets will be exposed in CloudWatch logs
+# echo "===== ENVIRONMENT ======"
+# env
 
 service nginx start
 

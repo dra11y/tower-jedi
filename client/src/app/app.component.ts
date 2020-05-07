@@ -1,7 +1,6 @@
 import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { TowerService } from './service/tower.service';
 import { XWingService } from './service/xwing.service';
-import { MessageService } from './service/message.service';
 import { Tower } from './model/tower';
 import { forkJoin, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -17,26 +16,30 @@ export class AppComponent implements OnInit {
   graph$: any;
 
   onChartClick(e) {
+    this.graph$.subscribe(graph => {
+      console.log(graph);
+    });
+
     let name: string = e.points[0].data.name;
 
     if (typeof name === 'undefined' || name != 'Tower') return;
 
     let id: number = e.points[0].id;
 
-    this.towerService.destroyTower(id)
-      .subscribe(tower => {
-        console.log(tower);
-      });
+    // this.towerService.destroyTower(id)
+    //   .subscribe(tower => {
+    //     console.log(tower);
+    //   });
+    //
+    // this.play("fire").then(() => {
+    //   this.play("explode");
+    //   this.loadGraph();
+    // });
 
-    this.play("fire").then(() => {
-      this.play("explode");
-      this.loadGraph();
-    });
-
-    this.messageService.add(`${this.constructor.name}: Chart clicked on ${name} ${id}`);
+    console.log(`${this.constructor.name}: Chart clicked on ${name} ${id}`);
   }
 
-  play(name) {
+  play(name: string) {
     return new Promise((resolve, reject) => {   // return a promise
       let audio = new Audio();
       audio.onerror = reject;
@@ -127,6 +130,15 @@ export class AppComponent implements OnInit {
           data: data,
           layout: {
             autosize: true,
+            xaxis: {
+              range: [-10, 10]
+            },
+            yaxis: {
+              range: [-10, 10]
+            },
+            zaxis: {
+              range: [-10, 10]
+            },
             height: 400,
             margin: { l: 0, r: 0, b: 0, t: 0 },
             paper_bgcolor: '#fff',
@@ -145,7 +157,6 @@ export class AppComponent implements OnInit {
   constructor(
     private towerService: TowerService,
     private xWingService: XWingService,
-    private messageService: MessageService
   ) { }
 
 }

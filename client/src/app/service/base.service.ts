@@ -5,8 +5,6 @@ import { formatDate } from "@angular/common";
 
 import { Observable, of } from 'rxjs';
 
-import { MessageService } from './message.service';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -16,8 +14,8 @@ export class BaseService {
   // };
 
   constructor(
-    protected http: HttpClient,
-    protected messageService: MessageService) { }
+    protected http: HttpClient
+  ) { }
 
   /**
    * Handle Http operation that failed.
@@ -39,9 +37,9 @@ export class BaseService {
     };
   }
 
-  /** Log a message with the MessageService */
+  /** Log a message to the console */
   protected log(message: string) {
     let now = formatDate(new Date(), 'MM/dd/yyyy HH:mm:ss', 'en-US');
-    this.messageService.add(`${now} ${this.constructor.name}: ${message}`);
+    console.log(`${now} ${this.constructor.name}: ${message}`);
   }
 }
