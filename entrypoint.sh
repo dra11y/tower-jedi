@@ -6,6 +6,9 @@ echo "ENVIRONMENT: ${ENVIRONMENT}"
 
 echo "PYTHONPATH: ${PYTHONPATH}"
 
+echo "===== ENV: ====="
+env
+
 service nginx start
 
 python manage.py collectstatic --no-input

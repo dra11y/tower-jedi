@@ -1,3 +1,8 @@
+# RDS hostname and port (endpoint)
+output "rds_endpoint" {
+  value = aws_rds_cluster.rds_cluster.endpoint
+}
+
 # ALB Hostname
 output "alb_hostname" {
   value = aws_lb.alb.dns_name

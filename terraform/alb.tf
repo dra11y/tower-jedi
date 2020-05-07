@@ -1,11 +1,11 @@
 resource "aws_lb" "alb" {
+  name               = var.app_name
   security_groups    = [aws_security_group.alb.id]
   subnets            = aws_subnet.public.*.id
   load_balancer_type = "application"
-  name               = var.subdomain
 
   tags = {
-    Name = "${var.app_name}_alb"
+    Name = "${var.app_name}-alb"
   }
 }
 
@@ -27,7 +27,7 @@ resource "aws_lb_target_group" "target" {
   }
 
   tags = {
-    Name = "${var.app_name}_alb_target_group"
+    Name = "${var.app_name}-alb-target"
   }
 
   depends_on = [aws_lb.alb]

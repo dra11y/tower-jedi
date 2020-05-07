@@ -1,15 +1,17 @@
 variable "app_name" {
   description = "Name of the project/application"
-  default     = "tgrushka_deathstar"
+  default     = "tgrushka-deathstar"
 }
 
-variable "subdomain" {
-  default = "tgrushka-deathstar"
-}
+variable "POSTGRES_USER" {}
+variable "POSTGRES_PASSWORD" {}
+variable "DJANGO_SUPERUSER_USERNAME" {}
+variable "DJANGO_SUPERUSER_PASSWORD" {}
+variable "DJANGO_SUPERUSER_EMAIL" {}
 
 variable "key_name" {
   description = "Name of AWS key pair"
-  default     = "death_star_ssh_key"
+  default     = "deathstar-ssh-key"
 }
 
 variable "public_key_path" {

@@ -13,7 +13,7 @@ resource "aws_appautoscaling_target" "target" {
 
 # Automatically scale capacity up by one
 resource "aws_appautoscaling_policy" "up" {
-  name               = "${var.app_name}_autoscaling_up"
+  name               = "${var.app_name}-autoscaling-up"
   service_namespace  = "ecs"
   resource_id        = local.resource_id
   scalable_dimension = local.scalable_dimension
@@ -34,7 +34,7 @@ resource "aws_appautoscaling_policy" "up" {
 
 # Automatically scale capacity down by one
 resource "aws_appautoscaling_policy" "down" {
-  name               = "${var.app_name}_autoscaling_down"
+  name               = "${var.app_name}-autoscaling-down"
   service_namespace  = "ecs"
   resource_id        = local.resource_id
   scalable_dimension = local.scalable_dimension
@@ -55,7 +55,7 @@ resource "aws_appautoscaling_policy" "down" {
 
 # CloudWatch alarm that triggers the autoscaling up policy
 resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
-  alarm_name          = "${var.app_name}_cpu_utilization_high"
+  alarm_name          = "${var.app_name}-cpu-high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -74,7 +74,7 @@ resource "aws_cloudwatch_metric_alarm" "service_cpu_high" {
 
 # CloudWatch alarm that triggers the autoscaling down policy
 resource "aws_cloudwatch_metric_alarm" "service_cpu_low" {
-  alarm_name          = "${var.app_name}_cpu_utilization_low"
+  alarm_name          = "${var.app_name}-cpu-low"
   comparison_operator = "LessThanOrEqualToThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"

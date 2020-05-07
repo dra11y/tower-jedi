@@ -6,7 +6,7 @@ locals {
 resource "aws_vpc" "vpc" {
   cidr_block = "10.0.0.0/16"
   tags = {
-    Name = "${var.app_name}_vpc"
+    Name = "${var.app_name}-vpc"
   }
 }
 
@@ -18,7 +18,7 @@ resource "aws_subnet" "private" {
   availability_zone       = var.availability_zones[var.aws_region][count.index]
   map_public_ip_on_launch = false
   tags = {
-    Name = "${var.app_name}_private_subnet_${count.index}"
+    Name = "${var.app_name}-private-subnet-${count.index}"
   }
 }
 
@@ -30,7 +30,7 @@ resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.vpc.id
   map_public_ip_on_launch = true
   tags = {
-    Name = "${var.app_name}_public_subnet_${count.index}"
+    Name = "${var.app_name}-public-subnet-${count.index}"
   }
 }
 
@@ -38,7 +38,7 @@ resource "aws_subnet" "public" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "${var.app_name}_gateway"
+    Name = "${var.app_name}-gateway"
   }
 }
 
@@ -55,7 +55,7 @@ resource "aws_eip" "gw" {
   vpc        = true
   depends_on = [aws_internet_gateway.gw]
   tags = {
-    Name = "${var.app_name}_eip_${count.index}"
+    Name = "${var.app_name}-eip-${count.index}"
   }
 }
 
@@ -64,7 +64,7 @@ resource "aws_nat_gateway" "gw" {
   subnet_id     = aws_subnet.public[count.index].id
   allocation_id = aws_eip.gw[count.index].id
   tags = {
-    Name = "${var.app_name}_nat_gateway"
+    Name = "${var.app_name}-nat-gateway"
   }
 }
 

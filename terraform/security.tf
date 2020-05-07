@@ -1,5 +1,27 @@
+# RDS/DB access
+resource "aws_security_group" "db" {
+  name        = "${var.app_name}-sec-db"
+  description = "Allow incoming database connections."
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    protocol    = "tcp"
+    from_port   = 5432
+    to_port     = 5432
+    cidr_blocks = aws_subnet.private.*.cidr_block
+  }
+
+  egress {
+    protocol    = "-1"
+    from_port   = 0
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # A security group for ALB access from the web
 resource "aws_security_group" "alb" {
+  name        = "${var.app_name}-sec-alb"
   description = "controls access to the ALB from the web"
   vpc_id      = aws_vpc.vpc.id
 
@@ -26,6 +48,7 @@ resource "aws_security_group" "alb" {
 
 # access to ECS tasks from the ALB
 resource "aws_security_group" "ecs" {
+  name        = "${var.app_name}-sec-ecs"
   description = "allow inbound access from the ALB only"
   vpc_id      = aws_vpc.vpc.id
 

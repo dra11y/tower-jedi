@@ -1,6 +1,6 @@
 # Create an ECR repository for our Docker image
 resource "aws_ecr_repository" "repo" {
-  name                 = "${var.app_name}_repo"
+  name                 = "${var.app_name}-repo"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -19,11 +19,11 @@ END_OF_COMMAND
 
 # Define an ECS cluster
 resource "aws_ecs_cluster" "cluster" {
-  name = "${var.app_name}_ecs_cluster"
+  name = "${var.app_name}-ecs-cluster"
 }
 
 resource "aws_ecs_task_definition" "task" {
-  family                   = "${var.app_name}_task"
+  family                   = "${var.app_name}-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.fargate_cpu
@@ -44,22 +44,28 @@ resource "aws_ecs_task_definition" "task" {
             "containerPort": ${var.app_port},
             "hostPort": ${var.app_port}
           }
-      ],
-      "logConfiguration": {
+        ],
+        "logConfiguration": {
           "logDriver": "awslogs",
           "options": {
             "awslogs-group": "${aws_cloudwatch_log_group.log_group.name}",
             "awslogs-region": "${var.aws_region}",
             "awslogs-stream-prefix": "${var.app_name}_logs"
           }
-        }
+        },
+        "secrets": [
+            {
+              "name": "SECRETS",
+              "valueFrom": "${aws_secretsmanager_secret_version.secrets.arn}"
+            }
+        ]
       }
     ]
 END_OF_DEFINITION
 }
 
 resource "aws_ecs_service" "service" {
-  name            = "${var.app_name}_ecs_service"
+  name            = "${var.app_name}-ecs-service"
   cluster         = aws_ecs_cluster.cluster.id
   task_definition = aws_ecs_task_definition.task.arn
   desired_count   = var.app_count
