@@ -23,9 +23,14 @@ output "ecs_security_groups" {
   value = aws_ecs_service.service.network_configuration[0].security_groups.*
 }
 
-# ECS cluster
+# ECS cluster ARN
 output "cluster" {
   value = aws_ecs_cluster.cluster.arn
+}
+
+# ECS service ARN
+output "service" {
+  value = aws_ecs_service.service.id
 }
 
 # ECS repo URL

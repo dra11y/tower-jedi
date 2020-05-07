@@ -21,9 +21,7 @@ build: ## Build Angular client & Docker image
 deploy: ## Push to ECR and re-deploy to ECS
 	aws ecr get-login-password | docker login -u AWS --password-stdin ${REPO_URL}
 	docker push ${REPO_URL}:latest
-	@cd terraform
-	aws ecs update-service --force-new-deployment --cluster `terraform output cluster` --service `terraform output service`
-	@cd ..
+	cd terraform && aws ecs update-service --force-new-deployment --cluster `terraform output cluster` --service `terraform output service`
 
 plan: ## Run Terraform plan
 	cd terraform && terraform init && terraform plan
