@@ -5,6 +5,7 @@ import time
 
 from django.contrib.auth.models import User
 from django.http import HttpResponse
+from faker import Faker
 from rest_framework import viewsets
 
 from exhaust_port.models import DefenceTower, XWing
@@ -12,61 +13,55 @@ from exhaust_port.serializers import (CoordinatesSerializer,
                                       DefenceTowerSerializer, PilotSerializer,
                                       XWingSerializer)
 
-# def seed(request):
-#     def rand_coord(seeder):
-#         return seeder.faker.random_int(min=-100, max=100)
 
-#     DefenceTower.objects.all().delete()
-#     print("Deleted all DefenceTowers!")
+def seed(request):
+    def rand_coord(faker):
+        return faker.random_int(min=-100, max=100)
 
-#     XWing.objects.all().delete()
-#     print("Deleted all XWings!")
+    def rand_coords(faker):
+        return f"{rand_coord(faker)}, {rand_coord(faker)}, {rand_coord(faker)}"
 
-#     User.objects.exclude(username="admin").all().delete()
-#     print("Deleted all Pilots!")
+    faker = Faker()
 
-#     seeder = Seed.seeder()
+    DefenceTower.objects.all().delete()
+    print("Deleted all DefenceTowers!")
 
-#     ADD_COUNT = 10
+    XWing.objects.all().delete()
+    print("Deleted all XWings!")
 
-#     seeder.add_entity(User, ADD_COUNT)
+    User.objects.exclude(username="admin").all().delete()
+    print("Deleted all Pilots!")
 
-#     inserted_ids = seeder.execute()
-#     user_ids = list(inserted_ids.values())[0]
-#     users = list(User.objects.filter(id__in=user_ids).order_by("?"))
+    for _ in range(10):
+        u = User(
+            username=faker.user_name(),
+            first_name=faker.first_name(),
+            last_name=faker.last_name(),
+            email=faker.email(),
+            is_staff=False,
+            is_active=True
+        )
+        u.save()
 
-#     print(f"Added {ADD_COUNT} Pilots!")
+        xw = XWing(
+            pilot=u,
+            health=faker.random_int(min=1, max=100),
+            cost=faker.random_int(min=100_000_000, max=2_000_000_000),
+            name=faker.domain_word(),
+            _coordinates=rand_coords(faker)
+        )
+        xw.save()
 
-#     clear(seeder)
+        t = DefenceTower(
+            target=xw,
+            sector=random.choice(['a1', 'a2', 'b1', 'b2']),
+            health=faker.random_int(min=1, max=100),
+            cost=faker.random_int(min=100_000_000, max=2_000_000_000),
+            _coordinates=rand_coords(faker)
+        )
+        t.save()
 
-#     seeder.add_entity(XWing, ADD_COUNT, {
-#         'pilot': lambda x, users=users: users.pop(),
-#         'health': lambda x: seeder.faker.random_int(min=1, max=100),
-#         'cost': lambda x: seeder.faker.random_int(min=100_000_000, max=2_000_000_000),
-#         'name': lambda x: seeder.faker.domain_word(),
-#         '_coordinates': lambda x: f"{rand_coord(seeder)}, {rand_coord(seeder)}, {rand_coord(seeder)}"
-#     })
-
-#     inserted_ids = seeder.execute()
-#     xwing_ids = list(inserted_ids.values())[0]
-#     xwings = list(XWing.objects.filter(id__in=xwing_ids).order_by("?"))
-
-#     print(f"Added {ADD_COUNT} XWings!")
-
-#     clear(seeder)
-
-#     seeder.add_entity(DefenceTower, ADD_COUNT, {
-#         'target': lambda x, xwings=xwings: random.choice(xwings),
-#         'sector': lambda x: random.choice(['a1', 'a2', 'b1', 'b2']),
-#         'health': lambda x: seeder.faker.random_int(min=1, max=100),
-#         'cost': lambda x: seeder.faker.random_int(min=100_000_000, max=2_000_000_000),
-#         '_coordinates': lambda x: f"{rand_coord(seeder)}, {rand_coord(seeder)}, {rand_coord(seeder)}"
-#     })
-
-#     inserted_ids = seeder.execute()
-#     print(f"Added {ADD_COUNT} DefenceTowers!")
-
-#     return HttpResponse("<h1>Database Reset!</h1>")
+    return HttpResponse("<h1>Database Reset!</h1>")
 
 
 class XWingViewSet(viewsets.ModelViewSet):

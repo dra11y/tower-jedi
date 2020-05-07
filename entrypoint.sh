@@ -1,12 +1,15 @@
 cd /app
 
+# set PYTHONPATH to /usr/local... from Dockerfile
 . /etc/profile.d/pythonpath.sh
 
-echo "ENVIRONMENT: ${ENVIRONMENT}"
+# get AWS SECRETS variable injected into ECS task definition
+# and split into environment variables:
+for s in $(echo ${SECRETS} | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+    export $s
+done
 
-echo "PYTHONPATH: ${PYTHONPATH}"
-
-echo "===== ENV: ====="
+echo "===== ENVIRONMENT ======"
 env
 
 service nginx start

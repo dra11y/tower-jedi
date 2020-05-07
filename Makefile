@@ -13,12 +13,13 @@ init: ## Install required tools for local environment
 	brew install terraform || exit 0
 	cd terraform && terraform init
 
-build: ## Build Angular client & Docker image
-	@echo "Building & pushing to ${REPO_URL}..."
+client: ## Build Angular client
 	cd client && ng build --prod
+
+build: ## Build Docker image
 	docker build . -t ${REPO_URL}:latest
 
-deploy: ## Push to ECR and re-deploy to ECS
+deploy: build ## Build, push to ECR and re-deploy to ECS
 	aws ecr get-login-password | docker login -u AWS --password-stdin ${REPO_URL}
 	docker push ${REPO_URL}:latest
 	cd terraform && aws ecs update-service --force-new-deployment --cluster `terraform output cluster` --service `terraform output service`

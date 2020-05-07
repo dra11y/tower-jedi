@@ -14,7 +14,7 @@ FROM python:3.8-slim-buster AS stage1
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && apt-get upgrade
-RUN apt-get -y install nginx
+RUN apt-get -y install nginx jq
 
 COPY --from=stage0 /root/.local /usr/local/
 

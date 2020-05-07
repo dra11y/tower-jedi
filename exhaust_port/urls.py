@@ -17,6 +17,6 @@ router.register(r'pilots', views.PilotViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('seed', views.seed),
+    path('seed', views.seed),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
