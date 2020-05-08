@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
+import { State, Action, StateContext, Selector } from '@ngxs/store';
 import { Tower } from '../models/tower';
 import { GetTowers, FireAtTower } from '../actions/tower.actions';
-import { UpdateChart } from '../actions/chart.actions';
+import { UpdateChart, UpdateCamera } from '../actions/chart.actions';
 import { GetXWings } from '../actions/xwing.actions';
 import { TowersService } from '../services/towers.service';
 import { tap } from 'rxjs/operators';
@@ -13,6 +13,7 @@ export interface GameStateModel {
     towers: Tower[];
     xwings: XWing[];
     chart: any;
+    camera: any;
 }
 
 @State<GameStateModel>({
@@ -20,7 +21,8 @@ export interface GameStateModel {
     defaults: {
         towers: [],
         xwings: [],
-        chart: null
+        chart: null,
+        camera: null
     }
 })
 @Injectable()
@@ -51,32 +53,47 @@ export class GameState {
     }
 
     @Action(GetTowers)
-    getTowers({ getState, patchState }: StateContext<GameStateModel>) {
+    getTowers({ patchState }: StateContext<GameStateModel>) {
         return this.towersService.getTowers().pipe(tap((result) => {
-            const xwings: XWing[] = getState().xwings;
-            patchState({
-                towers: result.map(t => {
-                    t.target_xwing = xwings.find(
-                        xw => xw.id == t.target
-                    )
-                    return t;
-                })
-            });
+            patchState({ towers: result });
         }));
+    }
+
+    play(name: string) {
+        return new Promise((resolve, reject) => {
+            if (name == null) {
+                resolve;
+                return;
+            }
+            let audio = new Audio();
+            audio.onerror = reject;
+            audio.onended = resolve;
+            audio.src = "../assets/" + name + ".mp3";
+            audio.play();
+        });
     }
 
     @Action(FireAtTower)
     fireAtTower({ getState, patchState, dispatch }: StateContext<GameStateModel>, { id }: FireAtTower) {
         let tower: Tower = getState().towers.find(t => t.id == id);
-        tower.health -= 50;
-        return this.towersService.updateTower(tower).pipe(tap((result) => {
+        let promise: Promise<unknown> = Promise.resolve();
+        let times = 1 + Math.ceil(4 * Math.random());
+        for (let i = 0; i < times; i ++) {
+            setTimeout(() => {
+                promise = this.play("fire1");
+            }, 100 * i);
+        }
+        return this.towersService.shootTower(tower).pipe(tap((result) => {
             const xwings: XWing[] = getState().xwings;
+            console.log('RESULT:');
+            console.log(result);
+            if (result.is_destroyed) {
+                let number = Math.ceil(6 * Math.random());
+                promise.then(() => this.play("ex" + number.toString()));
+            }
             patchState({
                 towers: getState().towers.map(t => {
                     if (t.id == id) t = result;
-                    t.target_xwing = xwings.find(
-                        xw => xw.id == t.target
-                    )
                     return t;
                 })
             });
@@ -91,11 +108,17 @@ export class GameState {
         }));
     }
 
+    @Action(UpdateCamera)
+    updateCamera({ getState, patchState }: StateContext<GameStateModel>, { camera }: UpdateCamera) {
+        patchState({ camera: camera });
+    }
+
     @Action(UpdateChart)
     updateChart({ getState, patchState }: StateContext<GameStateModel>) {
 
         let towers: Tower[] = getState().towers;
         let xwings: XWing[] = getState().xwings;
+        let camera: any = getState().camera;
 
         let data: any[] = [
             // plot Towers
@@ -105,9 +128,10 @@ export class GameState {
                 x: towers.map(t => t.coordinates.x),
                 y: towers.map(t => t.coordinates.y),
                 z: towers.map(t => t.coordinates.z),
-                // text: towers.map(t => `Tower: ${t.id}<br>sec: ${t.sector}<br>h: ${t.health}<br>target: ${t.target_xwing.name}`),
+                text: towers.map(t => `Tower: ${t.id}<br>sec: ${t.sector}<br>h: ${t.health}<br>target: ${t.target.name}`),
                 type: 'scatter3d',
                 mode: 'markers',
+                hoverinfo: 'text',
                 marker: {
                     symbol: 'square-open',
                     size: towers.map(t => t.health),
@@ -126,6 +150,7 @@ export class GameState {
                 y: xwings.map(xw => xw.coordinates.y),
                 z: xwings.map(xw => xw.coordinates.z),
                 text: xwings.map(xw => `XWing: ${xw.name}<br>plt: ${xw.pilot.first_name}<br>h: ${xw.health}`),
+                hoverinfo: 'text',
                 type: 'scatter3d',
                 mode: 'markers',
                 marker: {
@@ -140,28 +165,30 @@ export class GameState {
         ];
 
         towers.map(t => {
-            if (typeof t.target_xwing !== 'undefined') {
-                data.push({
-                    x: [t.coordinates.x, t.target_xwing.coordinates.x],
-                    y: [t.coordinates.y, t.target_xwing.coordinates.y],
-                    z: [t.coordinates.z, t.target_xwing.coordinates.z],
-                    type: 'scatter3d',
-                    mode: 'lines',
-                    name: 'Target Line',
-                    showlegend: false,
-                    line: {
-                        color: '#0af',
-                        width: 2
-                    }
-                });
-            }
+            if (t.is_destroyed) return;
+            data.push({
+                x: [t.coordinates.x, t.target.coordinates.x],
+                y: [t.coordinates.y, t.target.coordinates.y],
+                z: [t.coordinates.z, t.target.coordinates.z],
+                type: 'scatter3d',
+                mode: 'lines',
+                name: 'Target Line',
+                showlegend: false,
+                hoverinfo: 'none',
+                line: {
+                    color: '#0af',
+                    width: 2
+                }
+            });
         });
 
         patchState({
             chart: {
                 data: data,
                 layout: {
-                    autosize: true,
+                    scene: {
+                        camera: camera
+                    },
                     xaxis: {
                         range: [-10, 10]
                     },
@@ -181,6 +208,10 @@ export class GameState {
                         xanchor: 'right',
                         yanchor: 'top',
                     }
+                },
+                config: {
+                    doubleClickDelay: 1000,
+                    responsive: true
                 }
             }
         });

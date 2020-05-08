@@ -14,24 +14,12 @@ export class TowersService extends BaseService {
 
   private towersUrl = '/api/exhaust_port/towers';  // URL to web api
 
-  /** DELETE: destroys the tower from the server */
-  destroyTower(tower: Tower | number): Observable<Tower> {
-    const id = typeof tower === 'number' ? tower : tower.id;
-    const url = `${this.towersUrl}/${id}`;
-    this.log(url);
-
-    return this.http.delete<Tower>(url).pipe(
-      tap(_ => this.log(`destroyed tower id=${id}`)),
-      catchError(this.handleError<Tower>('destroyTower'))
-    );
-  }
-
-  /** PUT: shoot a tower */
+  /** DELETE: shoot (attempt to destroy) a tower */
   shootTower(tower: Tower): Observable<Tower> {
     const url = `${this.towersUrl}/${tower.id}`;
     this.log(url);
-    return this.http.put<Tower>(url, null).pipe(
-      tap(_ => this.log(`shot tower id=${tower.id}`)),
+    return this.http.delete<Tower>(url).pipe(
+      tap(r => { this.log(`shot tower id=${tower.id}`); }),
       catchError(this.handleError<Tower>('shootTower'))
     );
   }

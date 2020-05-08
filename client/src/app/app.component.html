@@ -3,7 +3,14 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <plotly-plot *ngIf="chart$ | async; let chart;" [data]="chart.data" [layout]="chart.layout" (plotly_click)="onChartClick($event)"></plotly-plot>
+      <plotly-plot
+          *ngIf="chart$ | async; let chart;"
+          [data]="chart.data"
+          [layout]="chart.layout"
+          [config]="chart.config"
+          (plotly_click)="click($event)"
+          (relayout)="relayout($event)"
+      ></plotly-plot>
     </div>
   </div>
 </div>

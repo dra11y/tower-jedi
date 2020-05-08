@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster AS stage0
+FROM python:3.7-slim-buster AS stage0
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /app
 WORKDIR /app
@@ -10,7 +10,7 @@ RUN apt-get -y install build-essential libpq-dev
 COPY requirements.txt .
 RUN pip install --user --no-cache-dir --no-warn-script-location -r requirements.txt
 
-FROM python:3.8-slim-buster AS stage1
+FROM python:3.7-slim-buster AS stage1
 ENV PYTHONUNBUFFERED 1
 
 RUN apt-get update && apt-get upgrade

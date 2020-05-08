@@ -7,7 +7,9 @@ import { FireAtTower, GetTowers } from './actions/tower.actions';
 import { GameStateModel, GameState } from './states/game.state';
 import { GetXWings } from './actions/xwing.actions';
 import { Observable } from 'rxjs';
-import { UpdateChart } from './actions/chart.actions';
+import { UpdateChart, UpdateCamera } from './actions/chart.actions';
+
+import { debounce } from 'lodash';
 
 @Component({
     selector: 'app-root',
@@ -15,12 +17,19 @@ import { UpdateChart } from './actions/chart.actions';
     styleUrls: ['./app.component.less']
 })
 export class AppComponent implements OnInit {
-    constructor(private store: Store) { }
+    constructor(private store: Store) {
+        this.click = debounce(this.click, 300);
+    }
 
     @Select(GameState.getGameState) game$: Observable<GameStateModel>;
     @Select(GameState.getChart) chart$: Observable<GameStateModel>;
 
-    onChartClick(e) {
+    relayout(e) {
+        console.log(e);
+        this.store.dispatch(new UpdateCamera(e["scene.camera"]));
+    }
+
+    click(e) {
         let name: string = e.points[0].data.name;
 
         if (typeof name === 'undefined' || name != 'Tower') return;

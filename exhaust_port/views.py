@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from faker import Faker
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from exhaust_port.models import DefenceTower, XWing
 from exhaust_port.serializers import (CoordinatesSerializer,
@@ -14,54 +16,61 @@ from exhaust_port.serializers import (CoordinatesSerializer,
                                       XWingSerializer)
 
 
-def seed(request):
-    def rand_coord(faker):
-        return faker.random_int(min=-100, max=100)
+class CurrentUserView(APIView):
+    def get(self, request):
+        serializer = PilotSerializer(request.user)
+        return Response(serializer.data)
 
-    def rand_coords(faker):
-        return f"{rand_coord(faker)}, {rand_coord(faker)}, {rand_coord(faker)}"
 
-    faker = Faker()
+class SeederView(APIView):
+    def post(self, request):
+        def rand_coord(faker):
+            return faker.random_int(min=-100, max=100)
 
-    DefenceTower.objects.all().delete()
-    print("Deleted all DefenceTowers!")
+        def rand_coords(faker):
+            return f"{rand_coord(faker)}, {rand_coord(faker)}, {rand_coord(faker)}"
 
-    XWing.objects.all().delete()
-    print("Deleted all XWings!")
+        faker = Faker()
 
-    User.objects.exclude(username="admin").all().delete()
-    print("Deleted all Pilots!")
+        DefenceTower.objects.all().delete()
+        print("Deleted all DefenceTowers!")
 
-    for _ in range(10):
-        u = User(
-            username=faker.user_name(),
-            first_name=faker.first_name(),
-            last_name=faker.last_name(),
-            email=faker.email(),
-            is_staff=False,
-            is_active=True
-        )
-        u.save()
+        XWing.objects.all().delete()
+        print("Deleted all XWings!")
 
-        xw = XWing(
-            pilot=u,
-            health=faker.random_int(min=1, max=100),
-            cost=faker.random_int(min=100_000_000, max=2_000_000_000),
-            name=faker.domain_word(),
-            _coordinates=rand_coords(faker)
-        )
-        xw.save()
+        User.objects.exclude(username="admin").all().delete()
+        print("Deleted all Pilots!")
 
-        t = DefenceTower(
-            target=xw,
-            sector=random.choice(['a1', 'a2', 'b1', 'b2']),
-            health=faker.random_int(min=1, max=100),
-            cost=faker.random_int(min=100_000_000, max=2_000_000_000),
-            _coordinates=rand_coords(faker)
-        )
-        t.save()
+        for _ in range(10):
+            u = User(
+                username=faker.user_name(),
+                first_name=faker.first_name(),
+                last_name=faker.last_name(),
+                email=faker.email(),
+                is_staff=False,
+                is_active=True
+            )
+            u.save()
 
-    return HttpResponse("<h1>Database Reset!</h1>")
+            xw = XWing(
+                pilot=u,
+                health=faker.random_int(min=1, max=100),
+                cost=faker.random_int(min=100_000_000, max=2_000_000_000),
+                name=faker.domain_word(),
+                _coordinates=rand_coords(faker)
+            )
+            xw.save()
+
+            t = DefenceTower(
+                target=xw,
+                sector=random.choice(['a1', 'a2', 'b1', 'b2']),
+                health=faker.random_int(min=1, max=100),
+                cost=faker.random_int(min=100_000_000, max=2_000_000_000),
+                _coordinates=rand_coords(faker)
+            )
+            t.save()
+
+        return HttpResponse("<h1>Database Reset!</h1>")
 
 
 class XWingViewSet(viewsets.ModelViewSet):
@@ -80,6 +89,12 @@ class DefenceTowerViewSet(viewsets.ModelViewSet):
     queryset = DefenceTower.objects.all()
     serializer_class = DefenceTowerSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.destroy()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
 
 
 class PilotViewSet(viewsets.ModelViewSet):

@@ -9,8 +9,15 @@ class CoordinatesSerializer(serializers.Serializer):
     z = serializers.IntegerField()
 
 
+class PilotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+
+
 class XWingSerializer(serializers.ModelSerializer):
     coordinates = CoordinatesSerializer(Coordinates())
+    pilot = PilotSerializer(read_only=True)
 
     class Meta:
         model = XWing
@@ -19,13 +26,8 @@ class XWingSerializer(serializers.ModelSerializer):
 
 class DefenceTowerSerializer(serializers.ModelSerializer):
     coordinates = CoordinatesSerializer(Coordinates())
+    target = XWingSerializer(read_only=True)
 
     class Meta:
         model = DefenceTower
-        fields = ['id', 'sector', 'health', 'cost', 'coordinates', 'target']
-
-
-class PilotSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'is_destroyed', 'sector', 'health', 'cost', 'coordinates', 'target']

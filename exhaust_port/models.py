@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from collections import namedtuple
+import random
 
 
 def toInt(s):
@@ -54,8 +55,9 @@ class XWing(models.Model):
     def get_name(self):
         return self.name
 
-    def is_destroyed(self, damage):
-        return self.health - damage == 0
+    @property
+    def is_destroyed(self):
+        return self.health == 0
 
     @property
     def coordinates(self):
@@ -81,13 +83,18 @@ class DefenceTower(models.Model):
         "exhaust_port.XWing", on_delete=models.SET_NULL, null=True
     )
 
-    def is_destroyed(self, damage):
-        return self.health - damage == 0
+    @property
+    def is_destroyed(self):
+        return self.health == 0
 
     def destroy(self):
-        while self.health > 0:
-            self.health -= 1
-            self.save()
+        self.health -= random.randint(10, 50)
+        if self.health <= 25:
+            self.health = 0
+            print("TOWER {} DESTROYED!".format(self.id))
+        else:
+            print("TOWER {} HEALTH = {}".format(self.id, self.health))
+        self.save()
 
     def set_coordinates(self, x, y, z):
         coordinates = f"{x}0{y}0{z}"

@@ -7,6 +7,6 @@ export interface Tower {
     cost: number;
     health: number;
     sector: string;
-    target: number;
-    target_xwing: XWing;
+    target: XWing;
+    is_destroyed: boolean;
 }
