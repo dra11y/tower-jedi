@@ -9,6 +9,11 @@ import { PlotlyViaCDNModule } from 'angular-plotly.js';
 
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { NgxsModule } from '@ngxs/store';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
+import { GameState } from './states/game.state';
+
 PlotlyViaCDNModule.plotlyVersion = '1.49.4'; // can be `latest` or any version number (i.e.: '1.40.0')
 PlotlyViaCDNModule.plotlyBundle = 'gl3d'; // optional: can be null (for full) or 'basic', 'cartesian', 'geo', 'gl3d', 'gl2d', 'mapbox' or 'finance'
 
@@ -25,7 +30,12 @@ PlotlyViaCDNModule.plotlyBundle = 'gl3d'; // optional: can be null (for full) or
       headerName: 'X-CSRFToken'
     }),
     PlotlyViaCDNModule,
-    NgbModule
+    NgbModule,
+    NgxsModule.forRoot([
+      GameState
+    ]),
+    NgxsReduxDevtoolsPluginModule.forRoot(),
+    NgxsLoggerPluginModule.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]

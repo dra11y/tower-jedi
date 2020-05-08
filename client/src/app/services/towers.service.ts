@@ -5,12 +5,12 @@ import { catchError, tap } from 'rxjs/operators';
 
 import { BaseService } from './base.service';
 
-import { Tower } from '../model/tower';
+import { Tower } from '../models/tower';
 
 @Injectable({
   providedIn: 'root'
 })
-export class TowerService extends BaseService {
+export class TowersService extends BaseService {
 
   private towersUrl = '/api/exhaust_port/towers';  // URL to web api
 
@@ -23,6 +23,16 @@ export class TowerService extends BaseService {
     return this.http.delete<Tower>(url).pipe(
       tap(_ => this.log(`destroyed tower id=${id}`)),
       catchError(this.handleError<Tower>('destroyTower'))
+    );
+  }
+
+  /** PUT: shoot a tower */
+  shootTower(tower: Tower): Observable<Tower> {
+    const url = `${this.towersUrl}/${tower.id}`;
+    this.log(url);
+    return this.http.put<Tower>(url, null).pipe(
+      tap(_ => this.log(`shot tower id=${tower.id}`)),
+      catchError(this.handleError<Tower>('shootTower'))
     );
   }
 

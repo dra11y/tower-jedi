@@ -3,6 +3,7 @@
 .PHONY: *
 .DEFAULT_GOAL := build
 REPO_URL := `cd terraform && terraform output "repo_url"`
+ALB_HOSTNAME := `cd terraform && terraform output "alb_hostname"`
 
 help: ## Print some help text
 	@echo "This tool assumes you're already logged in via the AWS CLI."
@@ -20,6 +21,9 @@ build-docker: ## Build Docker image
 	docker build . -t ${REPO_URL}:latest
 
 build: build-client build-docker ## Build both Angular Client and Docker image
+
+open: ## Open AWS ALB URL in browser
+	open "http://${ALB_HOSTNAME}"
 
 deploy: build ## Build, push to ECR and re-deploy to ECS
 	aws ecr get-login-password | docker login -u AWS --password-stdin ${REPO_URL}
