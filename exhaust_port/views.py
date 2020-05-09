@@ -6,7 +6,7 @@ import time
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from faker import Faker
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -24,6 +24,8 @@ class CurrentUserView(APIView):
 
 class SeederView(APIView):
     def post(self, request):
+        seed_count = 3
+
         def rand_coord(faker):
             return faker.random_int(min=-100, max=100)
 
@@ -41,7 +43,7 @@ class SeederView(APIView):
         User.objects.exclude(username="admin").all().delete()
         print("Deleted all Pilots!")
 
-        for _ in range(10):
+        for _ in range(seed_count):
             u = User(
                 username=faker.user_name(),
                 first_name=faker.first_name(),
@@ -70,7 +72,7 @@ class SeederView(APIView):
             )
             t.save()
 
-        return HttpResponse("<h1>Database Reset!</h1>")
+        return Response({"status": "OK"})
 
 
 class XWingViewSet(viewsets.ModelViewSet):

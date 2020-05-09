@@ -8,6 +8,7 @@ import { TowersService } from '../services/towers.service';
 import { tap } from 'rxjs/operators';
 import { XWing } from '../models/xwing';
 import { XWingsService } from '../services/xwings.service';
+import { CheckIfWon, ResetGame, InitGame } from '../actions/game.actions';
 
 export interface GameStateModel {
     towers: Tower[];
@@ -27,6 +28,8 @@ export interface GameStateModel {
 })
 @Injectable()
 export class GameState {
+    promise: Promise<unknown>;
+
     constructor(
         private towersService: TowersService,
         private xWingsService: XWingsService
@@ -73,14 +76,46 @@ export class GameState {
         });
     }
 
+    speak(text: string) {
+        return new Promise((resolve, reject) => {
+            if (text == null) {
+                resolve;
+                return;
+            }
+            let tts = new SpeechSynthesisUtterance(text);
+            tts.volume = 1.0;
+            tts.rate = 1.5;
+            tts.onerror = reject;
+            tts.onend = resolve;
+            (<any>window).speechSynthesis.speak(tts);
+        });
+    }
+
+    @Action(ResetGame)
+    resetGame({ dispatch }: StateContext<GameStateModel>) {
+        return this.towersService.resetGame().pipe(tap((result) => {
+            return dispatch(new InitGame());
+        }));
+    }
+
+    @Action(InitGame)
+    initGame({ dispatch }: StateContext<GameStateModel>) {
+        dispatch([
+            new GetTowers(),
+            new GetXWings()
+        ]).subscribe(() => {
+            dispatch(new UpdateChart());
+        });
+    }
+
     @Action(FireAtTower)
     fireAtTower({ getState, patchState, dispatch }: StateContext<GameStateModel>, { id }: FireAtTower) {
         let tower: Tower = getState().towers.find(t => t.id == id);
-        let promise: Promise<unknown> = Promise.resolve();
+        this.promise = Promise.resolve();
         let times = 1 + Math.ceil(4 * Math.random());
         for (let i = 0; i < times; i ++) {
             setTimeout(() => {
-                promise = this.play("fire1");
+                this.promise = this.play("fire1");
             }, 100 * i);
         }
         return this.towersService.shootTower(tower).pipe(tap((result) => {
@@ -89,7 +124,7 @@ export class GameState {
             console.log(result);
             if (result.is_destroyed) {
                 let number = Math.ceil(6 * Math.random());
-                promise.then(() => this.play("ex" + number.toString()));
+                this.promise = this.promise.then(() => this.play("ex" + number.toString()));
             }
             patchState({
                 towers: getState().towers.map(t => {
@@ -97,7 +132,10 @@ export class GameState {
                     return t;
                 })
             });
-            dispatch(new UpdateChart());
+            dispatch([
+                new UpdateChart(),
+                new CheckIfWon()
+            ]);
         }));
     };
 
@@ -106,6 +144,16 @@ export class GameState {
         return this.xWingsService.getXWings().pipe(tap((result) => {
             patchState({ xwings: result });
         }));
+    }
+
+    @Action(CheckIfWon)
+    checkIfWon({ getState }: StateContext<GameStateModel>) {
+        console.log("CHECK IF WON")
+        let towers: Tower[] = getState().towers;
+        if (0 == towers.filter(t => t.is_destroyed == false).length) {
+            console.log("WON!!!");
+            this.promise.then(_ => this.speak("Congratulations, you have won!").then(_ => this.play("finale")));
+        }
     }
 
     @Action(UpdateCamera)
@@ -211,7 +259,8 @@ export class GameState {
                 },
                 config: {
                     doubleClickDelay: 1000,
-                    responsive: true
+                    responsive: true,
+                    displayModeBar: false
                 }
             }
         });

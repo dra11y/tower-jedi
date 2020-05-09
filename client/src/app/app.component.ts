@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { UpdateChart, UpdateCamera } from './actions/chart.actions';
 
 import { debounce } from 'lodash';
+import { ResetGame, InitGame } from './actions/game.actions';
 
 @Component({
     selector: 'app-root',
@@ -31,48 +32,22 @@ export class AppComponent implements OnInit {
 
     click(e) {
         let name: string = e.points[0].data.name;
-
         if (typeof name === 'undefined' || name != 'Tower') return;
-
         let id: number = e.points[0].id;
-
         this.store.dispatch(new FireAtTower(id));
-
-        // this.TowersService.destroyTower(id)
-        //   .subscribe(tower => {
-        //     console.log(tower);
-        //   });
-        //
-        // this.play("fire").then(() => {
-        //   this.play("explode");
-        //   this.loadGraph();
-        // });
-
         console.log(`${this.constructor.name}: Chart clicked on ${name} ${id}`);
     }
 
-    play(name: string) {
-        return new Promise((resolve, reject) => {   // return a promise
-            let audio = new Audio();
-            audio.onerror = reject;
-            audio.onended = resolve;
-            audio.src = "../assets/" + name + ".mp3";
-            audio.play();
-        });
+    resetGame() {
+        this.store.dispatch(new ResetGame());
     }
 
     ngOnInit() {
-        this.store.dispatch([
-            new GetTowers(),
-            new GetXWings()
-        ]).subscribe(() => {
-            this.store.dispatch(new UpdateChart());
-        });
+        let finale = new Audio();
+        finale.src = "../assets/finale.mp3";
+        finale.load();
 
-        this.game$.subscribe((game: GameStateModel) => {
-            console.log("GAME STATE CHANGED!");
-
-        })
+        this.store.dispatch(new InitGame());
     }
 
 }
