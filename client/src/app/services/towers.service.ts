@@ -36,9 +36,9 @@ export class TowersService extends BaseService {
     }
 
     /** POST: reset game */
-    resetGame(): Observable<any> {
+    resetGame(count: number): Observable<any> {
         this.log('resetting game');
-        return this.http.post<any>(this.resetUrl, {})
+        return this.http.post<any>(this.resetUrl, {count: count})
             .pipe(
                 tap(_ => { this.log(`game reset!`); }),
                 catchError(this.handleError<any>('resetGame'))

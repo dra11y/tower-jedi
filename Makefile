@@ -14,8 +14,14 @@ init: ## Install required tools for local environment
 	brew install terraform || exit 0
 	cd terraform && terraform init
 
-build-client: ## Build Angular client
-	cd client && ng build --prod
+install-client: ## Install Angular client
+	cd client && yarn
+
+build-client: install-client ## Build Angular client
+	cd client && yarn build
+
+dev-client: install-client ## Build Angular client in dev mode and watch
+	cd client && yarn build-dev
 
 build-docker: ## Build Docker image
 	docker build . -t ${REPO_URL}:latest

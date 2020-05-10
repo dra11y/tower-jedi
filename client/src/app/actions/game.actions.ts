@@ -2,8 +2,10 @@ export class CheckIfWon {
     static readonly type = '[GAME] CheckIfWon';
 }
 
-export class ResetGame {
-    static readonly type = '[GAME] ResetGame';
+export class NewGame {
+    static readonly type = '[GAME] NewGame';
+
+    constructor(public count: number) { }
 }
 
 export class InitGame {

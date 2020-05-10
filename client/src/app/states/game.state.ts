@@ -8,7 +8,7 @@ import { TowersService } from '../services/towers.service';
 import { tap } from 'rxjs/operators';
 import { XWing } from '../models/xwing';
 import { XWingsService } from '../services/xwings.service';
-import { CheckIfWon, ResetGame, InitGame } from '../actions/game.actions';
+import { CheckIfWon, NewGame, InitGame } from '../actions/game.actions';
 
 export interface GameStateModel {
     towers: Tower[];
@@ -91,9 +91,9 @@ export class GameState {
         });
     }
 
-    @Action(ResetGame)
-    resetGame({ dispatch }: StateContext<GameStateModel>) {
-        return this.towersService.resetGame().pipe(tap((result) => {
+    @Action(NewGame)
+    newGame({ dispatch }: StateContext<GameStateModel>, { count }: NewGame) {
+        return this.towersService.resetGame(count).pipe(tap((result) => {
             return dispatch(new InitGame());
         }));
     }
@@ -104,6 +104,7 @@ export class GameState {
             new GetTowers(),
             new GetXWings()
         ]).subscribe(() => {
+            this.play("intro");
             dispatch(new UpdateChart());
         });
     }
@@ -152,7 +153,9 @@ export class GameState {
         let towers: Tower[] = getState().towers;
         if (0 == towers.filter(t => t.is_destroyed == false).length) {
             console.log("WON!!!");
-            this.promise.then(_ => this.speak("Congratulations, you have won!").then(_ => this.play("finale")));
+            this.promise
+                .then(_ => this.speak("Congratulations, you have won!")
+                .then(_ => this.play("finale")));
         }
     }
 
@@ -176,7 +179,7 @@ export class GameState {
                 x: towers.map(t => t.coordinates.x),
                 y: towers.map(t => t.coordinates.y),
                 z: towers.map(t => t.coordinates.z),
-                text: towers.map(t => `Tower: ${t.id}<br>sec: ${t.sector}<br>h: ${t.health}<br>target: ${t.target.name}`),
+                text: towers.map(t => `Tower: ${t.id}<br>sector: ${t.sector}<br>health: ${t.health}<br>target: ${t.target.name}`),
                 type: 'scatter3d',
                 mode: 'markers',
                 hoverinfo: 'text',
@@ -197,7 +200,7 @@ export class GameState {
                 x: xwings.map(xw => xw.coordinates.x),
                 y: xwings.map(xw => xw.coordinates.y),
                 z: xwings.map(xw => xw.coordinates.z),
-                text: xwings.map(xw => `XWing: ${xw.name}<br>plt: ${xw.pilot.first_name}<br>h: ${xw.health}`),
+                text: xwings.map(xw => `XWing: ${xw.name}<br>pilot: ${xw.pilot.first_name} ${xw.pilot.last_name}<br>health: ${xw.health}`),
                 hoverinfo: 'text',
                 type: 'scatter3d',
                 mode: 'markers',
@@ -246,9 +249,10 @@ export class GameState {
                     zaxis: {
                         range: [-10, 10]
                     },
-                    height: 400,
+                    autosize: true,
                     margin: { l: 0, r: 0, b: 0, t: 0 },
-                    paper_bgcolor: '#fff',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
                     showlegend: true,
                     legend: {
                         x: 1,
@@ -258,9 +262,8 @@ export class GameState {
                     }
                 },
                 config: {
-                    doubleClickDelay: 1000,
-                    responsive: true,
-                    displayModeBar: false
+                    doubleClickDelay: 300,
+                    displayModeBar: true
                 }
             }
         });

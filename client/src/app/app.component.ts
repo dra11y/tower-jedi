@@ -1,16 +1,11 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
-import { Tower } from './models/tower';
-import { map } from 'rxjs/operators';
-
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
-import { FireAtTower, GetTowers } from './actions/tower.actions';
-import { GameStateModel, GameState } from './states/game.state';
-import { GetXWings } from './actions/xwing.actions';
-import { Observable } from 'rxjs';
-import { UpdateChart, UpdateCamera } from './actions/chart.actions';
-
 import { debounce } from 'lodash';
-import { ResetGame, InitGame } from './actions/game.actions';
+import { Observable } from 'rxjs';
+import { UpdateCamera } from './actions/chart.actions';
+import { NewGame } from './actions/game.actions';
+import { FireAtTower } from './actions/tower.actions';
+import { GameState, GameStateModel } from './states/game.state';
 
 @Component({
     selector: 'app-root',
@@ -18,12 +13,13 @@ import { ResetGame, InitGame } from './actions/game.actions';
     styleUrls: ['./app.component.less']
 })
 export class AppComponent implements OnInit {
+    @Select(GameState.getGameState) game$: Observable<GameStateModel>;
+    @Select(GameState.getChart) chart$: Observable<GameStateModel>;
+    welcome: boolean = true;
+
     constructor(private store: Store) {
         this.click = debounce(this.click, 300);
     }
-
-    @Select(GameState.getGameState) game$: Observable<GameStateModel>;
-    @Select(GameState.getChart) chart$: Observable<GameStateModel>;
 
     relayout(e) {
         console.log(e);
@@ -38,8 +34,9 @@ export class AppComponent implements OnInit {
         console.log(`${this.constructor.name}: Chart clicked on ${name} ${id}`);
     }
 
-    resetGame() {
-        this.store.dispatch(new ResetGame());
+    newGame(count: number) {
+        this.store.dispatch(new NewGame(count));
+        this.welcome = false;
     }
 
     ngOnInit() {
@@ -47,7 +44,8 @@ export class AppComponent implements OnInit {
         finale.src = "../assets/finale.mp3";
         finale.load();
 
-        this.store.dispatch(new InitGame());
+        let intro = new Audio();
+        intro.src = "../assets/intro.mp3";
+        intro.load();
     }
-
 }

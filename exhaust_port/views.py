@@ -15,6 +15,8 @@ from exhaust_port.serializers import (CoordinatesSerializer,
                                       DefenceTowerSerializer, PilotSerializer,
                                       XWingSerializer)
 
+import requests
+
 
 class CurrentUserView(APIView):
     def get(self, request):
@@ -24,7 +26,13 @@ class CurrentUserView(APIView):
 
 class SeederView(APIView):
     def post(self, request):
+        json_data = json.loads(request.body)
         seed_count = 3
+
+        try:
+            seed_count = int(json_data["count"])
+        except ValueError:
+            pass # take the default
 
         def rand_coord(faker):
             return faker.random_int(min=-100, max=100)
@@ -33,6 +41,16 @@ class SeederView(APIView):
             return f"{rand_coord(faker)}, {rand_coord(faker)}, {rand_coord(faker)}"
 
         faker = Faker()
+
+        people = None
+        try:
+            people = requests.get("https://swapi.dev/api/people/").json()["results"]
+            print("USING STAR WARS API FOR PILOT NAMES!")
+            if seed_count > len(people):
+                seed_count = len(people)
+        except requests.exceptions.RequestException:
+            print("USING FAKER FOR PILOT NAMES!")
+            pass
 
         DefenceTower.objects.all().delete()
         print("Deleted all DefenceTowers!")
@@ -44,11 +62,28 @@ class SeederView(APIView):
         print("Deleted all Pilots!")
 
         for _ in range(seed_count):
+            if people is None:
+                pilot = {
+                    "first_name": faker.first_name(),
+                    "last_name": faker.last_name()
+                }
+            else:
+                i = random.randint(0, len(people) - 1)
+                person = people[i]
+                del people[i]
+                split_name = person["name"].split(" ")
+                if len(split_name) < 2:
+                    split_name.append("")
+                pilot = {
+                    "first_name": split_name[0],
+                    "last_name": split_name[1]
+                }
+
             u = User(
-                username=faker.user_name(),
-                first_name=faker.first_name(),
-                last_name=faker.last_name(),
-                email=faker.email(),
+                username=pilot["first_name"].lower() + pilot["last_name"].lower(),
+                first_name=pilot["first_name"],
+                last_name=pilot["last_name"],
+                email=f"{pilot['first_name']}.{pilot['last_name']}@deathstar.starwars.example",
                 is_staff=False,
                 is_active=True
             )
@@ -56,7 +91,7 @@ class SeederView(APIView):
 
             xw = XWing(
                 pilot=u,
-                health=faker.random_int(min=1, max=100),
+                health=faker.random_int(min=25, max=100),
                 cost=faker.random_int(min=100_000_000, max=2_000_000_000),
                 name=faker.domain_word(),
                 _coordinates=rand_coords(faker)
@@ -66,7 +101,7 @@ class SeederView(APIView):
             t = DefenceTower(
                 target=xw,
                 sector=random.choice(['a1', 'a2', 'b1', 'b2']),
-                health=faker.random_int(min=1, max=100),
+                health=faker.random_int(min=25, max=100),
                 cost=faker.random_int(min=100_000_000, max=2_000_000_000),
                 _coordinates=rand_coords(faker)
             )

@@ -1,0 +1,22 @@
+#plotly {
+  height: vh100;
+  margin: auto;
+}
+
+input,
+input:focus {
+  background: transparent;
+}
+
+#welcome {
+  opacity: 1.0;
+  width  : 100%;
+}
+
+#welcome.hidden {
+  opacity            : 0.0;
+  width              : 0;
+  transition         : opacity 1s, width 0s;
+  transition-property: opacity, width;
+  transition-delay   : 0s, 1.1s;
+}

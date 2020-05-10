@@ -23,17 +23,16 @@ RUN echo 'export PYTHONPATH="/usr/local/lib/python3.8/site-packages"' > /etc/pro
 RUN mkdir /app
 WORKDIR /app
 
+COPY nginx.conf /etc/nginx/sites-available/default
+EXPOSE 80
+
+COPY manage.py .
+COPY entrypoint.sh .
+
+# Copy code last to minimize changed layers
+
 COPY death_star death_star
 COPY exhaust_port exhaust_port
 COPY build build
-COPY entrypoint.sh .
-COPY manage.py .
-COPY pytest.ini .
-
-COPY nginx.conf /etc/nginx/sites-available/default
-
-COPY build build
-
-EXPOSE 80
 
 ENTRYPOINT bash entrypoint.sh

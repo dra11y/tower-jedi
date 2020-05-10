@@ -1,25 +1,73 @@
 <router-outlet></router-outlet>
 
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <plotly-plot
-          *ngIf="chart$ | async; let chart;"
-          [data]="chart.data"
-          [layout]="chart.layout"
-          [config]="chart.config"
-          (plotly_click)="click($event)"
-          (relayout)="relayout($event)"
-      ></plotly-plot>
+<app-starfield></app-starfield>
+
+<div class="d-flex flex-column vh-100 vw-100 align-items-center text-white">
+
+  <div class="d-flex p-2 form-row align-items-center">
+    <div class="pr-2">
+      <img
+          style="width: 300px;"
+          src="assets/tower-jedi.svg"
+          alt="TOWER JEDI"
+      />
+    </div>
+
+    <div class="col-auto">
+      <label
+          class="text-light"
+          for="numberOfTowers"
+      ># of Towers</label>
+    </div>
+    <div class="col-auto">
+      <input
+          class="form-control mb-2 text-light border-light"
+          type="number"
+          style="width: 4em"
+          #numberOfTowers
+          placeholder="3"
+          value="3"
+          min="1"
+          max="10"
+      >
+    </div>
+    <div class="col-auto">
+      <button
+          class="btn btn-danger mb-2"
+          (click)="newGame(numberOfTowers.value)"
+      >New Game</button>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col">
-      <button
-          class="btn btn-danger"
-          (click)="resetGame()"
-      >Reset Game</button>
+  <div class="p-3 d-flex flex-fill align-items-center">
+    <div
+        [ngClass]="{'hidden' : !welcome}"
+        class="text-light"
+        id="welcome"
+    >
+      <div
+          style="width: 500px"
+          class="text-center"
+      >
+        <h2>Welcome, <span class="text-warning">Tower Jedi</span>!</h2>
+        <h4>Click the <span class="px-2 py-1 rounded bg-danger text-white">New Game</span> button to begin.</h4>
+        <p><strong class="text-warning">Turn on your sound!</strong> You must manually target and destroy
+          the <strong class="text-success">green</strong> Defence Towers before they destroy your
+          <strong class="text-danger">red</strong> XWing ships (targets shown in <strong class="text-info">blue</strong>).
+          Manual targeting is harder than it looks!
+          When all the towers are destroyed, you will be congratulated.</p>
+      </div>
     </div>
+    <plotly-plot
+        id="plotly"
+        *ngIf="chart$ | async; let chart;"
+        [data]="chart.data"
+        [layout]="chart.layout"
+        [config]="chart.config"
+        (plotly_click)="click($event)"
+        (relayout)="relayout($event)"
+    ></plotly-plot>
   </div>
+
+
 </div>
