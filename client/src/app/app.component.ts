@@ -6,6 +6,7 @@ import { UpdateCamera } from './actions/chart.actions';
 import { NewGame } from './actions/game.actions';
 import { FireAtTower } from './actions/tower.actions';
 import { GameState, GameStateModel } from './states/game.state';
+import { TowersService } from './services/towers.service';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +19,7 @@ export class AppComponent implements AfterViewInit {
     welcome: boolean = true;
     touch: boolean = false;
 
-    constructor(private store: Store) {
+    constructor(private store: Store, private towersService: TowersService) {
         this.click = debounce(this.click, 300);
     }
 
@@ -41,6 +42,9 @@ export class AppComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
+        // spin up serverless database by querying it:
+        this.towersService.getTowers();
+
         let finale = new Audio();
         finale.src = "../assets/finale.mp3";
         finale.load();

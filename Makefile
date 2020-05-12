@@ -10,10 +10,9 @@ help: ## Print some help text
 	@echo "Available targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?(##.*)?$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-install-prereqs: ## Install terraform, node, & yarn
-	brew install terraform || exit 0
+install-prereqs: ## Install terraform, aws CLI, node, & yarn
+	brew install terraform awscli node
 	cd terraform && terraform init
-	brew install node
 	curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
 
 install-client: ## Install Angular client
