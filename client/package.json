@@ -25,6 +25,7 @@
     "@ngxs/store": "^3.6.2",
     "angular-plotly.js": "^2.0.0",
     "bootstrap": "^4.4.0",
+    "compass-mixins": "^0.12.10",
     "lodash": "^4.17.15",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",

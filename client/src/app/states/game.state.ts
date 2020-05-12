@@ -29,6 +29,7 @@ export interface GameStateModel {
 @Injectable()
 export class GameState {
     promise: Promise<unknown>;
+    speech: any = (<any>window).speechSynthesis;
 
     constructor(
         private towersService: TowersService,
@@ -69,6 +70,7 @@ export class GameState {
                 return;
             }
             let audio = new Audio();
+            audio.autoplay = true;
             audio.onerror = reject;
             audio.onended = resolve;
             audio.src = "../assets/" + name + ".mp3";
@@ -82,12 +84,13 @@ export class GameState {
                 resolve;
                 return;
             }
+            this.speech.cancel();
             let tts = new SpeechSynthesisUtterance(text);
             tts.volume = 1.0;
             tts.rate = 1.5;
-            tts.onerror = reject;
             tts.onend = resolve;
-            (<any>window).speechSynthesis.speak(tts);
+            tts.onerror = reject;
+            this.speech.speak(tts);
         });
     }
 
@@ -104,7 +107,7 @@ export class GameState {
             new GetTowers(),
             new GetXWings()
         ]).subscribe(() => {
-            this.play("intro");
+            // this.play("intro");
             dispatch(new UpdateChart());
         });
     }
@@ -153,9 +156,22 @@ export class GameState {
         let towers: Tower[] = getState().towers;
         if (0 == towers.filter(t => t.is_destroyed == false).length) {
             console.log("WON!!!");
-            this.promise
-                .then(_ => this.speak("Congratulations, you have won!")
-                .then(_ => this.play("finale")));
+            if (navigator.userAgent.toLowerCase().indexOf('safari/') > -1) {
+                // BUG: speech "onend" event not fired in Safari for some reason
+                this.promise
+                    .then(_ => {
+                        this.speak("Congratulations, you have won!");
+                        let that = this;
+                        setTimeout(() => {
+                            that.play("finale");
+                        }, 1800);
+                    });
+            } else {
+                // ... but it's OK in Firefox/Chrome
+                this.promise
+                    .then(_ => this.speak("Congratulations, you have won!"))
+                    .then(_ => this.play("finale"));
+            }
         }
     }
 
@@ -237,6 +253,8 @@ export class GameState {
             chart: {
                 data: data,
                 layout: {
+                    clickmode: "select+event",
+                    hovermode: "closest",
                     scene: {
                         camera: camera
                     },
@@ -262,7 +280,7 @@ export class GameState {
                     }
                 },
                 config: {
-                    doubleClickDelay: 300,
+                    doubleClickDelay: 500,
                     displayModeBar: true
                 }
             }

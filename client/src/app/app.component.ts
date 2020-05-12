@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Select, Store } from '@ngxs/store';
 import { debounce } from 'lodash';
 import { Observable } from 'rxjs';
@@ -10,19 +10,19 @@ import { GameState, GameStateModel } from './states/game.state';
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
-    styleUrls: ['./app.component.less']
+    styleUrls: ['./app.component.less', './starwars.scss']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements AfterViewInit {
     @Select(GameState.getGameState) game$: Observable<GameStateModel>;
     @Select(GameState.getChart) chart$: Observable<GameStateModel>;
     welcome: boolean = true;
+    touch: boolean = false;
 
     constructor(private store: Store) {
         this.click = debounce(this.click, 300);
     }
 
     relayout(e) {
-        console.log(e);
         this.store.dispatch(new UpdateCamera(e["scene.camera"]));
     }
 
@@ -30,6 +30,7 @@ export class AppComponent implements OnInit {
         let name: string = e.points[0].data.name;
         if (typeof name === 'undefined' || name != 'Tower') return;
         let id: number = e.points[0].id;
+        if (id == null) return;
         this.store.dispatch(new FireAtTower(id));
         console.log(`${this.constructor.name}: Chart clicked on ${name} ${id}`);
     }
@@ -39,7 +40,7 @@ export class AppComponent implements OnInit {
         this.welcome = false;
     }
 
-    ngOnInit() {
+    ngAfterViewInit() {
         let finale = new Audio();
         finale.src = "../assets/finale.mp3";
         finale.load();

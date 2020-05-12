@@ -10,9 +10,11 @@ help: ## Print some help text
 	@echo "Available targets:"
 	@grep -E '^[a-zA-Z_-]+:.*?(##.*)?$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-init: ## Install required tools for local environment
+install-prereqs: ## Install terraform, node, & yarn
 	brew install terraform || exit 0
 	cd terraform && terraform init
+	brew install node
+	curl --compressed -o- -L https://yarnpkg.com/install.sh | bash
 
 install-client: ## Install Angular client
 	cd client && yarn
@@ -35,6 +37,7 @@ deploy: build ## Build, push to ECR and re-deploy to ECS
 	aws ecr get-login-password | docker login -u AWS --password-stdin ${REPO_URL}
 	docker push ${REPO_URL}:latest
 	cd terraform && aws ecs update-service --force-new-deployment --cluster `terraform output cluster` --service `terraform output service`
+	open "http://${ALB_HOSTNAME}"
 
 plan: ## Run Terraform plan
 	cd terraform && terraform init && terraform plan

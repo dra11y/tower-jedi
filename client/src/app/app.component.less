@@ -8,14 +8,16 @@ input:focus {
   background: transparent;
 }
 
-#welcome {
+.animation {
   opacity: 1.0;
   width  : 100%;
+  height : 100%;
 }
 
-#welcome.hidden {
+.animation.hidden {
   opacity            : 0.0;
   width              : 0;
+  height             : 0;
   transition         : opacity 1s, width 0s;
   transition-property: opacity, width;
   transition-delay   : 0s, 1.1s;

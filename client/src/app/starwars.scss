@@ -1,0 +1,116 @@
+@import '~compass-mixins/lib/compass/css3';
+@import url(https://fonts.googleapis.com/css?family=News+Cycle:400,700);
+$logo-width: 600px;
+$logo-height: 105px;
+
+.starwars {
+  color: #ff6;
+
+  section {
+    position: absolute;
+    top     : 45%;
+    left    : 50%;
+    z-index : 1;
+  }
+
+  .intro {
+    $intro-width: 15em;
+    width       : $intro-width;
+    margin      : 0 0 0 (- $intro-width / 2);
+    font-size   : 200%;
+    font-weight : 400;
+    color       : rgb(75, 213, 238);
+    opacity     : 0;
+    animation   : intro 3s ease-out 0.5s;
+  }
+
+  .logo {
+    opacity  : 0;
+    animation: logo 5s ease-out 4s;
+    top      : 500px;
+
+    svg {
+      width : $logo-width;
+      height: $logo-height;
+    }
+  }
+
+  .titles {
+    $titles-width   : 14.65em;
+    width           : $titles-width;
+    margin          : 0 0 0 (- $titles-width / 2);
+    top             : auto;
+    bottom          : 0;
+    height          : 70em;
+    font-size       : 350%;
+    text-align      : justify;
+    overflow        : hidden;
+    transform-origin: 50% 100%;
+    @include transform(perspective(300px) rotateX(25deg));
+
+    > div {
+      position : absolute;
+      top      : 100%;
+      animation: titles 50s linear 6s;
+
+      > p {
+        margin     : 1.35em 0 1.85em;
+        line-height: 1.35em;
+        @include backface-visibility(hidden);
+      }
+    }
+  }
+}
+@keyframes intro {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes logo {
+  0% {
+    width  : $logo-width;
+    margin : (- $logo-width / 2) 0 0 (- $logo-width / 2);
+    @include transform(scale(3));
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 1;
+    width  : $logo-width;
+    margin : (- $logo-width / 2) 0 0 (- $logo-width / 2);
+  }
+
+  100% {
+    @include transform(scale(.1));
+    opacity: 0;
+    width  : $logo-width;
+    margin : (- $logo-width / 2) 0 0 (- $logo-width / 2);
+  }
+}
+@keyframes titles {
+  0% {
+    top    : 100%;
+    opacity: 1;
+  }
+
+  95% {
+    opacity: 1;
+  }
+
+  100% {
+    top    : 20%;
+    opacity: 0;
+  }
+}

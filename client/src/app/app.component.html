@@ -2,6 +2,65 @@
 
 <app-starfield></app-starfield>
 
+<article class="starwars">
+  <div
+      class="animation"
+      [ngClass]="{'hidden' : !welcome}"
+  >
+
+    <section class="intro">
+      In the present day, in a galaxy closer than you think....
+    </section>
+
+    <section class="titles">
+      <div>
+        <p>
+          It is a period of galactic war.
+          The evil Galactic Empire has
+          positioned its formidable
+          Defence Towers to protect
+          the Empire's ultimate weapon,
+          the DEATH STAR.
+        </p>
+
+        <p>
+          The Rebel Forces and
+          Princess Leia are counting
+          on YOU to remove the enemy
+          towers so that we can destroy
+          the DEATH STAR and save the
+          galaxy....
+        </p>
+
+        <p>
+          Welcome, Tower Jedi! To complete
+          your mission, turn on your speakers and click the<br />
+          <span class="px-2 py-1 rounded bg-danger text-white">New Game</span>
+          button to begin. You must manually target and destroy
+          the <strong class="text-success">green</strong> Defence Towers before they destroy your
+          <strong class="text-danger">red</strong> XWing ships (targets shown in <strong class="text-info">blue</strong>).
+          Desktop or laptop forces will be needed to complete this mission,
+          as our firing system does not yet work on mobile.
+        </p>
+      </div>
+    </section>
+
+    <section class="logo">
+      <img
+          style="width: 600px; height: 105px;"
+          src="assets/tower-jedi.svg"
+          alt="TOWER JEDI"
+      />
+    </section>
+  </div>
+</article>
+
+
+
+
+
+
+
 <div class="d-flex flex-column vh-100 vw-100 align-items-center text-white">
 
   <div class="d-flex p-2 form-row align-items-center">
@@ -39,34 +98,18 @@
     </div>
   </div>
 
+
   <div class="p-3 d-flex flex-fill align-items-center">
-    <div
-        [ngClass]="{'hidden' : !welcome}"
-        class="text-light"
-        id="welcome"
-    >
-      <div
-          style="width: 500px"
-          class="text-center"
-      >
-        <h2>Welcome, <span class="text-warning">Tower Jedi</span>!</h2>
-        <h4>Click the <span class="px-2 py-1 rounded bg-danger text-white">New Game</span> button to begin.</h4>
-        <p><strong class="text-warning">Turn on your sound!</strong> You must manually target and destroy
-          the <strong class="text-success">green</strong> Defence Towers before they destroy your
-          <strong class="text-danger">red</strong> XWing ships (targets shown in <strong class="text-info">blue</strong>).
-          Manual targeting is harder than it looks!
-          When all the towers are destroyed, you will be congratulated.</p>
-      </div>
-    </div>
-    <plotly-plot
-        id="plotly"
-        *ngIf="chart$ | async; let chart;"
-        [data]="chart.data"
-        [layout]="chart.layout"
-        [config]="chart.config"
-        (plotly_click)="click($event)"
-        (relayout)="relayout($event)"
-    ></plotly-plot>
+    <ng-container *ngIf="chart$ | async; let chart;">
+      <plotly-plot
+          #plotly
+          id="plotly"
+          [data]="chart.data"
+          [layout]="chart.layout"
+          [config]="chart.config"
+          (plotly_click)="click($event)"
+      ></plotly-plot>
+    </ng-container>
   </div>
 
 

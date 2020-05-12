@@ -15,7 +15,7 @@ import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
 import { GameState } from './states/game.state';
 import { StarfieldComponent } from './starfield/starfield.component';
 
-PlotlyViaCDNModule.plotlyVersion = '1.49.4'; // can be `latest` or any version number (i.e.: '1.40.0')
+PlotlyViaCDNModule.plotlyVersion = '1.54.1'; // can be `latest` or any version number (i.e.: '1.40.0')
 PlotlyViaCDNModule.plotlyBundle = 'gl3d'; // optional: can be null (for full) or 'basic', 'cartesian', 'geo', 'gl3d', 'gl2d', 'mapbox' or 'finance'
 
 @NgModule({
