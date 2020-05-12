@@ -1,5 +1,15 @@
 # Tower Jedi
 
+## Features
+
+-   Angular CLI frontend
+-   Plotly 3D Scatterplot used for game view
+-   Terraform deployment to AWS
+-   Django/PostgreSQL backend
+-   Django Rest Framework
+-   Client access to the Star Wars API (<https://swapi.dev/api>) to retrieve pilot names
+-   Serverless PostgreSQL database on Amazon Aurora
+
 ## Docker, PostgreSQL, and Terraform
 
 This app is built on python:3.7-slim-buster with nginx and Django added to the installation (see `Dockerfile`). In development, a postgres:12.2-alpine image is used to host the database.
@@ -27,9 +37,11 @@ The configuration is managed by Terraform, which should be customized as follows
         -   For development:
             -   `make dev-client` to build/watch Angular
             -   `docker-compose up` in a new terminal to start up the dev containers
+            -   Visit <http://localhost> (as the nginx proxy server runs on port 80)
         -   `aws configure` to setup AWS CLI -- use an IAM with sufficient account privileges to:
             -   create/destroy EC2, ECS, Aurora, ALB, and gateway instances, and security groups...
             -   setup CloudWatch logs...
             -   basically, an AWS "superuser"
         -   `make plan` to run terraform plan & check the configuration
         -   `make deploy` to deploy to AWS
+        -   `make open` to open the latest deployed URL (the ALB URL on AWS)
