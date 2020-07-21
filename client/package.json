@@ -26,7 +26,7 @@
     "angular-plotly.js": "^2.0.0",
     "bootstrap": "^4.4.0",
     "compass-mixins": "^0.12.10",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "rxjs": "~6.5.4",
     "tslib": "^1.10.0",
     "zone.js": "~0.10.2"
